@@ -1,0 +1,75 @@
+// File: LibraryApp.java
+import java.util.*;
+
+class Book {
+    private final String id;
+    private final String title;
+    private final String author;
+    private boolean borrowed = false;
+
+    public Book(String id, String title, String author){
+        this.id = id; this.title = title; this.author = author;
+    }
+    public String getId(){ return id; }
+    public String getTitle(){ return title; }
+    public String getAuthor(){ return author; }
+    public boolean isBorrowed(){ return borrowed; }
+    public void borrow(){ borrowed = true; }
+    public void returned(){ borrowed = false; }
+    @Override public String toString(){
+        return id + " | " + title + " by " + author + (borrowed ? " (borrowed)" : "");
+    }
+}
+
+class Library {
+    private final Map<String, Book> books = new LinkedHashMap<>();
+    public void addBook(Book b){ books.put(b.getId(), b); }
+    public List<Book> listAll(){ return new ArrayList<>(books.values()); }
+    public boolean borrow(String id){
+        Book b = books.get(id);
+        if(b == null || b.isBorrowed()) return false;
+        b.borrow(); return true;
+    }
+    public boolean returnBook(String id){
+        Book b = books.get(id);
+        if(b == null || !b.isBorrowed()) return false;
+        b.returned(); return true;
+    }
+}
+
+public class LibraryApp {
+    public static void main(String[] args){
+        Library lib = new Library();
+        Scanner sc = new Scanner(System.in);
+        // sample data
+        lib.addBook(new Book("B1","Clean Code","Robert C. Martin"));
+        lib.addBook(new Book("B2","Effective Java","Joshua Bloch"));
+        boolean quit = false;
+        while(!quit){
+            System.out.println("\n1) List 2) Add 3) Borrow 4) Return 5) Exit");
+            System.out.print("> ");
+            String cmd = sc.nextLine().trim();
+            switch(cmd){
+                case "1":
+                    for(Book b : lib.listAll()) System.out.println(b);
+                    break;
+                case "2":
+                    System.out.print("Id: "); String id = sc.nextLine().trim();
+                    System.out.print("Title: "); String t = sc.nextLine().trim();
+                    System.out.print("Author: "); String a = sc.nextLine().trim();
+                    lib.addBook(new Book(id,t,a));
+                    System.out.println("Added.");
+                    break;
+                case "3":
+                    System.out.print("Id to borrow: "); if(lib.borrow(sc.nextLine().trim())) System.out.println("Borrowed."); else System.out.println("Cannot borrow.");
+                    break;
+                case "4":
+                    System.out.print("Id to return: "); if(lib.returnBook(sc.nextLine().trim())) System.out.println("Returned."); else System.out.println("Cannot return.");
+                    break;
+                case "5": quit = true; break;
+                default: System.out.println("Unknown");
+            }
+        }
+        System.out.println("Bye.");
+    }
+}
